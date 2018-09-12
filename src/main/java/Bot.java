@@ -1,9 +1,3 @@
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.telegram.telegrambots.ApiContext;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -15,11 +9,13 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
+import java.io.IOException;
+
 public class Bot extends TelegramLongPollingBot{
 
     public static final String PROXY_HOST = "u0k12.tgproxy.me";
     public static final int PROXY_PORT = 1080;
-
+    public static Words words;
     public static void main(String[] args) throws TelegramApiRequestException {
         ApiContextInitializer.init();
 
@@ -41,17 +37,17 @@ public class Bot extends TelegramLongPollingBot{
         //telegramBotsApi.registerBot(bot);
 
         DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        //CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-        credentialsProvider.setCredentials(
+        /*credentialsProvider.setCredentials(
                 new AuthScope(PROXY_HOST, PROXY_PORT),
-                new UsernamePasswordCredentials("", ""));
+                new UsernamePasswordCredentials("", ""));*/
 
-        HttpHost httpHost = new HttpHost(PROXY_HOST, PROXY_PORT);
-        RequestConfig requestConfig = RequestConfig.custom().setProxy(httpHost).setAuthenticationEnabled(false).build();
-        botOptions.setRequestConfig(requestConfig);
-        botOptions.setHttpProxy(httpHost);
-
+        //HttpHost httpHost = new HttpHost(PROXY_HOST, PROXY_PORT);
+        //RequestConfig requestConfig = RequestConfig.custom().build();
+        //botOptions.setRequestConfig(requestConfig);
+        //botOptions.setHttpProxy(httpHost);
+        words = new Words();
         try{
             telegramBotsApi.registerBot(new Bot());
         }catch (TelegramApiRequestException e){
@@ -77,6 +73,7 @@ public class Bot extends TelegramLongPollingBot{
     @Override
     public void onUpdateReceived(Update update) {//для приема сообщений
         Message message = update.getMessage();
+
         if(message != null && message.hasText()){
             switch (message.getText()){
                 case "/help":
@@ -88,7 +85,11 @@ public class Bot extends TelegramLongPollingBot{
                 case "/start":
                     sendMsg(message, "Hello, let's start!");
                 default:
-
+                    try {
+                        sendMsg(message,words.gameLogic(message.getText()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
             }
 
