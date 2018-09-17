@@ -9,6 +9,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Bot extends TelegramLongPollingBot{
@@ -16,7 +17,7 @@ public class Bot extends TelegramLongPollingBot{
     public static final String PROXY_HOST = "u0k12.tgproxy.me";
     public static final int PROXY_PORT = 1080;
     public static Words words;
-    public static void main(String[] args) throws TelegramApiRequestException {
+    public static void main(String[] args) throws TelegramApiRequestException, FileNotFoundException {
         ApiContextInitializer.init();
 
         /*TelegramLongPollingBot bot = new Bot();
@@ -77,22 +78,21 @@ public class Bot extends TelegramLongPollingBot{
         if(message != null && message.hasText()){
             switch (message.getText()){
                 case "/help":
-                    sendMsg(message, "How can I help you?");
+                    sendMsg(message, "How can I help you? You need to write a word.");
                     break;
                 case "/settings":
                     sendMsg(message, "What will we do?");
                     break;
                 case "/start":
                     sendMsg(message, "Hello, let's start!");
+                    break;
                 default:
                     try {
                         sendMsg(message,words.gameLogic(message.getText()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
             }
-
         }
     }
 
